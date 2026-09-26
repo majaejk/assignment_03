@@ -1,6 +1,10 @@
-Write your reflection here.
-
-See reflection.md for what makes a good reflection — be specific, use the
-terminology from this assignment (rerun, widget, return value, guard, bytes vs.
-text, decode, session state, initialise once, button-triggered, metric), and make
-it actionable.
+I struggled with building error guards in this assignment. In process_file I had missed
+the proper rework of check if line before processing the line to prevent errors. I had also
+messed up file name handling in that I had it hardcoded instead of deriving it from the 
+name of the uploaded file. I did fine with managing session state and button triggering 
+but had my tests fail because of formatting errors so that confused me a bit. I built out 
+a packages processed metric that added calculates packages to session state and had to make
+sure that it occured after the processing. I also ran into an issue where I was using st.info
+in the file processing instead of from session state, as such previously uploaded files would
+be removed from the UI. I learned alot from looking at the tests to see what was being asserted
+, this meant I could ensure the code was solving the problem being presented in the desired manner.

@@ -13,9 +13,6 @@ the work has to sit behind a guard: only parse when there is something to parse.
 Run it:  Run and Debug -> "Streamlit Run: Current File"   (see README Reference #1)
 Test it: pytest tests/test_streamlit.py -k one_package
 """
-
-from unicodedata import name
-
 import streamlit as st
 from packaging_parser import calc_total_units, get_unit, parse_packaging
 
@@ -28,10 +25,13 @@ package_data = st.text_input(
 )
 
 if package_data:
-    package = parse_packaging(package_data)
-    total = calc_total_units(package)
-    unit = get_unit(package)
-    for item in package:
-        for name, quantity in item.items():
-            st.info(f"{name} ➡️ {quantity}")
-    st.success(f"Total 📦 Size: {total} {unit}")
+    try:
+        package = parse_packaging(package_data)
+        total = calc_total_units(package)
+        unit = get_unit(package)
+        for item in package:
+            for name, quantity in item.items():
+                st.info(f"{name} ➡️ {quantity}")
+        st.success(f"Total 📦 Size: {total} {unit}")
+    except ValueError:
+        st.error("Invalid package description. Please check your input.")
