@@ -19,7 +19,9 @@ click instead: `st.button` is True only on the one rerun the click caused.
 Run it:  Run and Debug -> "Streamlit Run: Current File"   (see README Reference #1)
 Test it: pytest tests/test_streamlit.py -k process_files
 """
-
+import streamlit as st
+import json
+from packaging_parser import calc_total_units, get_unit, parse_packaging
 # --- The page ---------------------------------------------------------------------
 #
 # No scaffolding. You have written two of these now, and this one does the same
@@ -38,3 +40,35 @@ Test it: pytest tests/test_streamlit.py -k process_files
 # README Step 7 names the two traps. The tests are built around them: choosing a
 # file without clicking must change nothing, and a rerun with the same file still
 # chosen must not count it again.
+if "files_processed" not in st.session_state:   # first run only
+    st.session_state.files_processed = 0
+    st.session_state.packages_processed = 0
+    st.session_state.history = []
+
+uploaded_file = st.file_uploader("Upload package file:", key="package_file")
+
+if st.button("Process file", key="process"):                                      # the rerun the click caused
+    st.session_state.files_processed += 1
+    packages = []
+    text = uploaded_file.getvalue().decode("utf-8")
+    for line in text.splitlines():
+        line = line.strip()
+        parsed_line = parse_packaging(line)
+        packages.append(parsed_line)
+        st.info(f"{line} ➡️ Total 📦 Size: {calc_total_units(parsed_line)} {get_unit(parsed_line)}")
+        if not line:
+            continue
+    with open(f"data/packaging{st.session_state.files_processed}.json", "w") as json_file:
+        json.dump(packages, json_file, indent=4)
+    info_line = f"{len(packages)} packages written to data/packaging{st.session_state.files_processed}.json"
+    st.info(info_line)
+    st.session_state.history.append(info_line)
+    st.session_state.packages_processed += len(packages)
+
+# st.button("Process file", key="process")
+
+col1, col2 = st.columns(2)
+with col1:
+    st.metric("Files processed", st.session_state.files_processed)   # every run
+with col2:
+    st.metric("Packages processed", st.session_state.packages_processed)   # every run
