@@ -45,6 +45,7 @@ if "files_processed" not in st.session_state:   # first run only
     st.session_state.packages_processed = 0
     st.session_state.history = []
 
+st.title("Process Package Files")
 uploaded_file = st.file_uploader("Upload package file:", key="package_file")
 
 if st.button("Process file", key="process"):                                      # the rerun the click caused
@@ -53,15 +54,15 @@ if st.button("Process file", key="process"):                                    
     text = uploaded_file.getvalue().decode("utf-8")
     for line in text.splitlines():
         line = line.strip()
+        if not line:
+            continue
         parsed_line = parse_packaging(line)
         packages.append(parsed_line)
         st.info(f"{line} ➡️ Total 📦 Size: {calc_total_units(parsed_line)} {get_unit(parsed_line)}")
-        if not line:
-            continue
-    with open(f"data/packaging{st.session_state.files_processed}.json", "w") as json_file:
+    file_name = uploaded_file.name.split(".")[0]
+    with open(f"data/{file_name}.json", "w") as json_file:
         json.dump(packages, json_file, indent=4)
-    info_line = f"{len(packages)} packages written to data/packaging{st.session_state.files_processed}.json"
-    st.info(info_line)
+    info_line = f"{len(packages)} packages written to data/{file_name}.json"
     st.session_state.history.append(info_line)
     st.session_state.packages_processed += len(packages)
 
@@ -72,3 +73,5 @@ with col1:
     st.metric("Files processed", st.session_state.files_processed)   # every run
 with col2:
     st.metric("Packages processed", st.session_state.packages_processed)   # every run
+for info_line in st.session_state.history:
+    st.info(info_line)

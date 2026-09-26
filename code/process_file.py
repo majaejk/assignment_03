@@ -37,11 +37,12 @@ if uploaded_file:
     text = uploaded_file.getvalue().decode("utf-8")
     for line in text.splitlines():
         line = line.strip()
+        if not line:
+            continue
         parsed_line = parse_packaging(line)
         packages.append(parsed_line)
         st.info(f"{line} ➡️ Total 📦 Size: {calc_total_units(parsed_line)} {get_unit(parsed_line)}")
-        if not line:
-            continue
-    with open("data/packaging1.json", "w") as json_file:
+    file_name = uploaded_file.name.split(".")[0]
+    with open(f"data/{file_name}.json", "w") as json_file:
         json.dump(packages, json_file, indent=4)
-    st.success(f"{len(packages)} packages written to data/packaging1.json")
+    st.success(f"{len(packages)} packages written to data/{file_name}.json")
